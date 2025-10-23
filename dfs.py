@@ -60,5 +60,22 @@ visited_cities = set()
 path = []
 
 print("Recursive DFS Traversal: ")
-result = dfsAlgoRecursive(graph, start, goal, visited_cities, path, 0)
-print(result)
+result_path, total_distance = dfsAlgoRecursive(graph, start, goal, visited_cities, path, 0)
+
+if result_path:
+    print(f"\nPath: {' -> '.join(result_path)}")
+
+    # show step by step distances
+    print("\nBreakdown of Distances:")
+    for i in range (len(result_path) - 1):
+        city_from = result_path[i]
+        city_to = result_path[i + 1]
+        distance = graph[city_from][city_to]
+        print(f" {city_from} --> {city_to}: {distance} in miles")
+
+    print(f"\n{'='*50}")
+    print(f"Total distance: {total_distance:.2f} miles")
+    print(f"{'='*50}")
+else:
+    print("No path found!")
+
