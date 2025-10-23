@@ -31,3 +31,32 @@ with open(filename, newline='') as csvfile:
 
     print("Graph Loaded Successfully!")
     print(f"Rochesters Neighbors: {graph['Rochester']}") # all neighbors of rochester
+
+
+def dfsAlgoRecursive(graph, current, goal, visited, path):
+    path.append(current)
+    visited.add(current)
+
+    if current == goal:
+        return path
+    
+    # recursive path
+    for neighbor in graph.get(current, {}):
+        if neighbor not in visited:
+            result = dfsAlgoRecursive(graph, neighbor, goal, visited, path)
+            if result:
+                return result
+            
+    # now backtrack if the path doesnt work 
+    path.pop()
+    return None
+
+print("Cities in the Graph: ", list(graph.keys())[:5])
+
+start = 'Rochester'
+goal = 'New York City'
+visited_cities = set()
+path = []
+print("Recursive DFS Traversal: ")
+result = dfsAlgoRecursive(graph, start, goal, visited_cities, path)
+print(result)
