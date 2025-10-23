@@ -1,5 +1,6 @@
 import math
 import csv
+import time
 
 filename = 'data.csv'
 
@@ -17,25 +18,26 @@ with open(filename, newline='') as csvfile:
         allCities = header[0:]
 
         for row in reader:
-            city_from = row[0]# its the first cell in the city name
+            cityFrom = row[0]# its the first cell in the city name
             distances = row[1:] # rest are the distances
 
             # now creating a dictionary for this city's neighbors
-            graph[city_from] = {}
+            graph[cityFrom] = {}
 
-            for city_to, distance_str in zip(allCities, distances):
+            for cityTo, distance_str in zip(allCities, distances):
                 distance = float(distance_str)
                 if distance > 0: # only add if theres an actual route between the two
-                    graph[city_from][city_to] = distance
+                    graph[cityFrom][cityTo] = distance
 
 
     print("Graph Loaded Successfully!")
     print(f"Rochesters Neighbors: {graph['Rochester']}") # all neighbors of rochester
 
 
-def dfsAlgoRecursive(graph, current, goal, visited, path, cost):
+def dfsAlgoRecursive(graph, current, goal, visited, path, cost, expanded_nodes):
     path.append(current)
     visited.add(current)
+    expanded_nodes[0] += 1
 
     if current == goal:
         return (path.copy(), cost)
@@ -44,7 +46,7 @@ def dfsAlgoRecursive(graph, current, goal, visited, path, cost):
     for neighbor in graph.get(current, {}):
         if neighbor not in visited:
             edge_cost = graph[current][neighbor]
-            result, total_cost = dfsAlgoRecursive(graph, neighbor, goal, visited, path, cost + edge_cost)
+            result, total_cost = dfsAlgoRecursive(graph, neighbor, goal, visited, path, cost + edge_cost, expanded_nodes)
             if result:
                 return (result, total_cost)
             
@@ -52,30 +54,73 @@ def dfsAlgoRecursive(graph, current, goal, visited, path, cost):
     path.pop()
     return (None, 0)
 
-print("Cities in the Graph: ", list(graph.keys())[:5])
-
 start = 'Rochester'
-goal = 'New York City'
-visited_cities = set()
-path = []
+allCities = list(graph.keys())
 
-print("Recursive DFS Traversal: ")
-result_path, total_distance = dfsAlgoRecursive(graph, start, goal, visited_cities, path, 0)
+print("="*75)
+print(f"Route Planner - Starting from {start}")
+print("="*75)
+print(f"{'Destination':<20} {'Distance (mi)':<15} {'Stops':<10} {'Expanded':<12} {'Time (ms)'}")
+print("-"*75)
 
-if result_path:
-    print(f"\nPath: {' -> '.join(result_path)}")
+allResults = []
 
-    # show step by step distances
-    print("\nBreakdown of Distances:")
-    for i in range (len(result_path) - 1):
-        city_from = result_path[i]
-        city_to = result_path[i + 1]
-        distance = graph[city_from][city_to]
-        print(f" {city_from} --> {city_to}: {distance} in miles")
+for goal in allCities:
+    if goal == start:
+        continue
 
-    print(f"\n{'='*50}")
-    print(f"Total distance: {total_distance:.2f} miles")
-    print(f"{'='*50}")
-else:
-    print("No path found!")
+    visitedCities = set()
+    path = []
+    expandedNodes = [0]
 
+    startTime = time.time()
+    resultPath, totalDistance = dfsAlgoRecursive(graph, start, goal, visitedCities, path, 0, expandedNodes)
+    endTime = time.time()
+    runtime = (endTime - startTime) * 1000
+
+    if resultPath:
+        numberOfStops = len(resultPath) - 1
+        print(f"{goal:<20} {totalDistance:<15.2f} {numberOfStops:<10} {expandedNodes[0]:<12} {runtime:<.4f}")
+        allResults.append({
+            'destination': goal,
+            'distance': totalDistance,
+            'stops': numberOfStops,
+            'expanded': expandedNodes[0],
+            'runtime': runtime,
+            'path': resultPath
+        })
+    else:
+        print(f"{goal:<20} {'No path found':<15} {'-':<10}")
+
+print("="*80)
+print()
+
+print("="*80)
+print("Detailed Results")
+print("="*80)
+
+for i, result in enumerate(allResults):
+    print(f"\n{'='*80}")
+    print(f"Route to: {result['destination']}")
+    print(f"{'='*80}")
+    print(f"Path: {' --> '.join(result['path'])}")
+
+    # show each step as well
+    print("\nStep by Step Breakdown:")
+    for j in range(len(result['path']) - 1):
+        cityFrom = result['path'][j]
+        cityTo = result['path'][j+1]
+        distance = graph[cityFrom][cityTo]
+        print(f" {j+1}. {cityFrom} --> {cityTo}: {distance:.2f} miles")
+    print(f"\n  TOTAL DISTANCE: {result['distance']:.2f} miles")
+    print(f"\n  Number of Stops: {result['stops']}")
+    print(f"\n  Nodes Explored: {result['expanded']}")
+    print(f"\n  Runtime: {result['runtime']:.4f} ms")
+
+print("\n" + "="*80)
+
+# summary of the stats
+if allResults:
+    averageDistance = sum(r['distance'] for r in allResults) / len(allResults)
+    averageStops = sum(r['stops'] for r in allResults) / len(allResults)
+    averageExpanded = sum(r['expanded'] for r in allResults) / len(allResults)
