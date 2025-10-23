@@ -33,23 +33,24 @@ with open(filename, newline='') as csvfile:
     print(f"Rochesters Neighbors: {graph['Rochester']}") # all neighbors of rochester
 
 
-def dfsAlgoRecursive(graph, current, goal, visited, path):
+def dfsAlgoRecursive(graph, current, goal, visited, path, cost):
     path.append(current)
     visited.add(current)
 
     if current == goal:
-        return path
+        return (path.copy(), cost)
     
     # recursive path
     for neighbor in graph.get(current, {}):
         if neighbor not in visited:
-            result = dfsAlgoRecursive(graph, neighbor, goal, visited, path)
+            edge_cost = graph[current][neighbor]
+            result, total_cost = dfsAlgoRecursive(graph, neighbor, goal, visited, path, cost + edge_cost)
             if result:
-                return result
+                return (result, total_cost)
             
     # now backtrack if the path doesnt work 
     path.pop()
-    return None
+    return (None, 0)
 
 print("Cities in the Graph: ", list(graph.keys())[:5])
 
@@ -57,6 +58,7 @@ start = 'Rochester'
 goal = 'New York City'
 visited_cities = set()
 path = []
+
 print("Recursive DFS Traversal: ")
-result = dfsAlgoRecursive(graph, start, goal, visited_cities, path)
+result = dfsAlgoRecursive(graph, start, goal, visited_cities, path, 0)
 print(result)
