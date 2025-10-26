@@ -1,5 +1,6 @@
 import csv
 from collections import deque
+import time
 
 filename = 'data.csv'
 allCities = []
@@ -22,6 +23,8 @@ with open(filename, newline='') as csvfile:
     print("Graph loaded successfully")
 
 def bfs(graph, start, goal):
+    startTime = time.perf_counter()
+    nodes_expanded = 1
     traversal =  []
     visited = set()
     queue = deque([start]) #initialize queue with start node
@@ -32,17 +35,22 @@ def bfs(graph, start, goal):
         current_node = queue.popleft() 
         traversal.append(current_node)
         if current_node == goal: 
-            return traversal
+            endTime = time.perf_counter()
+            runtime = endTime - startTime
+            message =  " from " + start_city + " to " + goal_city + " runtime is:" + str(runtime) + ", nodes expanded is:" + str(nodes_expanded) + ", traversal is: " + str(traversal)
+            return message
 
         #add unvisited neighbors to queue
-        for neighbor in graph.get(current_node, []):    
+        for neighbor in graph.get(current_node, {}):    
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
-
+        
+        nodes_expanded += 1
+ 
 
 for start_city in allCities:
     for goal_city in allCities:
-        message = " from " + start_city + " to " + goal_city + " traversal is: " + str(bfs(graph, 'Rochester', goal_city))
-        print(message)
+       print(bfs(graph, start_city, goal_city))
+
 
