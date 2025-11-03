@@ -34,24 +34,28 @@ with open(filename, newline='') as csvfile:
     print(f"Rochesters Neighbors: {graph['Rochester']}") # all neighbors of rochester
 
 
-def dfsAlgoRecursive(graph, current, goal, visited, path, cost, expanded_nodes):
+def dfsAlgoRecursive(graph, current, goal, path, cost, expanded_nodes):
     path.append(current)
-    visited.add(current)
     expanded_nodes[0] += 1
+
+    # print(f"Exploring: {current}, Path so far: {' -> '.join(path)}")
 
     if current == goal:
         return (path.copy(), cost)
     
     # recursive path
-    for neighbor in graph.get(current, {}):
-        if neighbor not in visited:
+    neighbors = sorted(graph.get(current, {}).keys())
+
+    for neighbor in neighbors:
+        if neighbor not in path:
             edge_cost = graph[current][neighbor]
-            result, total_cost = dfsAlgoRecursive(graph, neighbor, goal, visited, path, cost + edge_cost, expanded_nodes)
+            result, total_cost = dfsAlgoRecursive(graph, neighbor, goal, path, cost + edge_cost, expanded_nodes)
             if result:
                 return (result, total_cost)
             
     # now backtrack if the path doesnt work 
     path.pop()
+    # visited.remove(current)
     return (None, 0)
 
 start = 'Rochester'
@@ -69,12 +73,13 @@ for goal in allCities:
     if goal == start:
         continue
 
-    visitedCities = set()
+    # visitedCities = set()
     path = []
     expandedNodes = [0]
+    
 
     startTime = time.time()
-    resultPath, totalDistance = dfsAlgoRecursive(graph, start, goal, visitedCities, path, 0, expandedNodes)
+    resultPath, totalDistance = dfsAlgoRecursive(graph, start, goal, path, 0, expandedNodes)
     endTime = time.time()
     runtime = (endTime - startTime) * 1000
 
