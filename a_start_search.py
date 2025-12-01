@@ -27,7 +27,7 @@ def aSearch(startingCity, allCities):
     visited = []
     visited.append(startingCity)
     
-    while len(visited) < 30:
+    while len(visited) < 30: # Calculate h(n_)
         distance = math.inf
         for end in allCities:
             if(end in visited or city_node.get_node_from_name(end) == startingCity):
@@ -41,8 +41,8 @@ def aSearch(startingCity, allCities):
         totalDistance += distance
         path += " -> " + next
 
-    totalDistance += city_node.get_distance(startingCity, next)
-    totalDistance = round(totalDistance, 3)     
+    totalDistance += city_node.get_distance(startingCity, next) # Add g(n)
+    totalDistance = round(totalDistance, 3)     # Round to 3 decimal places to find approx f(n)
     return (totalDistance,path)
 
 def main():
