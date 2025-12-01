@@ -34,13 +34,14 @@ def aSearch(startingCity, allCities):
                 None
             else:
                 current = startingCity.get_distance(end)
-                if((current + city_node.get_estimated_distance(end)) < (distance + city_node.get_estimated_distance(startingCity))):
+                if(current < distance):
                     distance = current
                     next = end
         visited.append(next)
         totalDistance += distance
         path += " -> " + next
 
+    totalDistance += city_node.get_distance(startingCity, next)
     totalDistance = round(totalDistance, 3)     
     return (totalDistance,path)
 

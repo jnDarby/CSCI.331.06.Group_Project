@@ -26,12 +26,6 @@ def get_All_Nodes():
 def get_distance(city_from, city_to):
     return city_from.get_distance(city_to)
 
-def get_estimated_distance(city):
-    if isinstance(city, str):
-        city = get_node_from_name(city)
-    total_distance = sum(city.distances.values())
-    return total_distance / len(city.distances)
-
 def get_node_from_name(name):
     for node in allCityNodes:
         if node.name == name:
