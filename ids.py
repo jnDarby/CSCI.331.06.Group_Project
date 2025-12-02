@@ -1,174 +1,142 @@
+"""
+ids.py - Iterative Deepening Search Algorithm
+"""
+
 import csv
 import time
 
-filename = 'data.csv'
-
-allCities = []
-graph = {}
-
-# Load the graph from CSV
-try:
-    with open(filename, newline='', encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
-        
-        # Read all lines first to debug
-        lines = list(reader)
-        
-        if not lines:
-            print("ERROR: CSV file is empty!")
-            exit(1)
-        
-        # First line is the header with city names
-        header = lines[0]
-        allCities = header
-        
-        print(f"Found {len(allCities)} cities in header")
-        
-        # Remaining lines are the distance data
-        for row in lines[1:]:
-            if not row or len(row) == 0:
-                continue
-                
-            cityFrom = row[0]  # First column is the source city
-            distances = row[1:]  # Rest are distances
-            
-            graph[cityFrom] = {}
-            
-            for cityTo, distance_str in zip(allCities, distances):
-                try:
-                    distance = float(distance_str)
-                    if distance > 0:  # Only add if there's an actual connection
-                        graph[cityFrom][cityTo] = distance
-                except ValueError:
-                    continue
-                    
-except FileNotFoundError:
-    print(f"ERROR: Could not find file '{filename}'")
-    print("Make sure data.csv is in the same directory as ids.py")
-    exit(1)
-except Exception as e:
-    print(f"ERROR loading CSV: {e}")
-    exit(1)
-
-print("Graph Loaded Successfully!")
-print(f"Rochester's Neighbors: {graph['Rochester']}")
-
-def dls(graph, current, goal, depth_limit, path, cost, expanded_nodes):
-    """Depth-Limited Search helper function for IDS"""
-    expanded_nodes[0] += 1
+class IDSAlgorithm:
+    """IDS Implementation"""
     
-    # Goal found
-    if current == goal:
-        return (path + [current], cost)
+    def __init__(self, graph):
+        self.graph = graph
+        self.expanded_nodes = 0
     
-    # Depth limit reached
-    if depth_limit == 0:
+    def dls(self, current, goal, depth_limit, path, cost):
+        """depth-limited search helper function"""
+        self.expanded_nodes += 1
+        
+        if current == goal:
+            return (path + [current], cost)
+        
+        if depth_limit == 0:
+            return (None, 0)
+        
+        neighbors = sorted(self.graph.get(current, {}).keys())
+        
+        for neighbor in neighbors:
+            if neighbor not in path:
+                edge_cost = self.graph[current][neighbor]
+                result, total_cost = self.dls(
+                    neighbor, goal, depth_limit - 1,
+                    path + [current], cost + edge_cost
+                )
+                if result:
+                    return (result, total_cost)
+        
         return (None, 0)
     
-    # Explore neighbors in sorted order
-    neighbors = sorted(graph.get(current, {}).keys())
-    
-    for neighbor in neighbors:
-        if neighbor not in path:
-            edge_cost = graph[current][neighbor]
-            result, total_cost = dls(
-                graph, 
-                neighbor, 
-                goal, 
-                depth_limit - 1, 
-                path + [current], 
-                cost + edge_cost, 
-                expanded_nodes
-            )
+    def search(self, start, goal, max_depth=50):
+        """running the IDS algorithm"""
+        self.expanded_nodes = 0
+        
+        for depth in range(max_depth):
+            result, total_cost = self.dls(start, goal, depth, [], 0)
             if result:
                 return (result, total_cost)
-    
-    return (None, 0)
-
-def idsAlgo(graph, start, goal, max_depth=50):
-    """Iterative Deepening Search Algorithm"""
-    expanded_nodes = [0]
-    
-    for depth in range(max_depth):
-        path = []
-        result, total_cost = dls(graph, start, goal, depth, path, 0, expanded_nodes)
         
-        if result:
-            return (result, total_cost, expanded_nodes[0])
+        return (None, 0)
+
+
+def load_graph(filename='data.csv'):
+    """load in the graph from CSV file - this should handle the new csv file"""
+    cities = []
+    graph = {}
     
-    return (None, 0, expanded_nodes[0])
+    try:
+        with open(filename, newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            lines = list(reader)
+            
+            if not lines:
+                raise ValueError("CSV file is empty")
+            
+            # header with city names (skip first empty column)
+            cities = [city.strip() for city in lines[0][1:] if city.strip()]
+            
+            # build adjacency dictionary
+            for row in lines[1:]:
+                if not row or len(row) == 0:
+                    continue
+                
+                city_from = row[0].strip()
+                if not city_from:
+                    continue
+                
+                distances = row[1:]
+                graph[city_from] = {}
+                
+                for i, distance_str in enumerate(distances):
+                    if i >= len(cities):
+                        break
+                    
+                    city_to = cities[i]
+                    
+                    # skip empty cells (no direct connection)
+                    if not distance_str or distance_str.strip() == '':
+                        continue
+                    
+                    try:
+                        distance = float(distance_str.strip())
+                        if distance > 0:
+                            graph[city_from][city_to] = distance
+                    except ValueError:
+                        continue
+        
+        return graph, cities
+        
+    except FileNotFoundError:
+        print(f"Error: Could not find '{filename}'")
+        return None, None
+    except Exception as e:
+        print(f"Error loading CSV: {e}")
+        return None, None
 
-start = 'Rochester'
-allCities = list(graph.keys())
 
-print("="*75)
-print(f"Route Planner - Starting from {start} (Using IDS)")
-print("="*75)
-print(f"{'Destination':<20} {'Distance (mi)':<15} {'Stops':<10} {'Expanded':<12} {'Time (ms)'}")
-print("-"*75)
-
-allResults = []
-
-for goal in allCities:
-    if goal == start:
-        continue
-    
-    startTime = time.time()
-    resultPath, totalDistance, expandedNodes = idsAlgo(graph, start, goal)
-    endTime = time.time()
-    runtime = (endTime - startTime) * 1000
-    
-    if resultPath:
-        numberOfStops = len(resultPath) - 1
-        print(f"{goal:<20} {totalDistance:<15.2f} {numberOfStops:<10} {expandedNodes:<12} {runtime:<.4f}")
-        allResults.append({
-            'destination': goal,
-            'distance': totalDistance,
-            'stops': numberOfStops,
-            'expanded': expandedNodes,
-            'runtime': runtime,
-            'path': resultPath
-        })
-    else:
-        print(f"{goal:<20} {'No path found':<15} {'-':<10}")
-
-print("="*80)
-print()
-
-print("="*80)
-print("Detailed Results")
-print("="*80)
-
-for i, result in enumerate(allResults):
-    print(f"\n{'='*80}")
-    print(f"Route to: {result['destination']}")
-    print(f"{'='*80}")
-    print(f"Path: {' --> '.join(result['path'])}")
-    
-    print("\nStep by Step Breakdown:")
-    for j in range(len(result['path']) - 1):
-        cityFrom = result['path'][j]
-        cityTo = result['path'][j+1]
-        distance = graph[cityFrom][cityTo]
-        print(f" {j+1}. {cityFrom} --> {cityTo}: {distance:.2f} miles")
-    print(f"\n  TOTAL DISTANCE: {result['distance']:.2f} miles")
-    print(f"\n  Number of Stops: {result['stops']}")
-    print(f"\n  Nodes Explored: {result['expanded']}")
-    print(f"\n  Runtime: {result['runtime']:.4f} ms")
-
-print("\n" + "="*80)
-
-# Summary statistics
-if allResults:
-    averageDistance = sum(r['distance'] for r in allResults) / len(allResults)
-    averageStops = sum(r['stops'] for r in allResults) / len(allResults)
-    averageExpanded = sum(r['expanded'] for r in allResults) / len(allResults)
-    averageRuntime = sum(r['runtime'] for r in allResults) / len(allResults)
-    
-    print("\nSUMMARY STATISTICS (IDS Algorithm)")
+# IF its alone then run as standalone script
+if __name__ == "__main__":
     print("="*80)
-    print(f"Average Distance: {averageDistance:.2f} miles")
-    print(f"Average Stops: {averageStops:.2f}")
-    print(f"Average Nodes Expanded: {averageExpanded:.2f}")
-    print(f"Average Runtime: {averageRuntime:.4f} ms")
+    print("IDS Algorithm - Standalone Mode")
+    print("="*80)
+    
+    graph, cities = load_graph('data.csv')
+    
+    if not graph:
+        print("Failed to load graph")
+        exit(1)
+    
+    print(f"Graph loaded: {len(cities)} cities\n")
+    
+    start = 'Rochester'
+    
+    print(f"Running IDS from {start} to all destinations\n")
+    print(f"{'Destination':<20} {'Distance':<12} {'Stops':<8} {'Expanded':<10} {'Time (ms)'}")
+    print("-"*80)
+    
+    for goal in sorted(cities):
+        if goal == start:
+            continue
+        
+        algo = IDSAlgorithm(graph)
+        start_time = time.time()
+        path, cost = algo.search(start, goal)
+        end_time = time.time()
+        runtime = (end_time - start_time) * 1000
+        
+        if path:
+            stops = len(path) - 1
+            print(f"{goal:<20} {cost:<12.2f} {stops:<8} {algo.expanded_nodes:<10} {runtime:<.4f}")
+        else:
+            print(f"{goal:<20} {'NO PATH':<12} {'-':<8} {'-':<10} {'-'}")
+    
     print("="*80)
