@@ -15,10 +15,11 @@ def findShortestAPath(allCityNodes, allCities):
     
     for startCity in allCityNodes:
         current = aSearch(startCity, allCities)
-        if(current[0] < shortestDistance):
-            shortestDistance = current[0]
-            shortestPath = current[1]
-    print("\nThe shortest path is " + shortestPath + " with a direct line distance of " + str(shortestDistance) + " miles.\n")
+        if(current[0] + current[1] < shortestDistance):
+            trueDistance = current[0]
+            shortestDistance = current[0] + current[1]
+            shortestPath = current[2]
+    print("\nThe shortest path is " + shortestPath + " with a direct line distance of " + str(trueDistance) + " miles.\n")
 
 def aSearch(startingCity, allCities):
     distance = math.inf
@@ -41,9 +42,9 @@ def aSearch(startingCity, allCities):
         totalDistance += distance
         path += " -> " + next
 
-    totalDistance += city_node.get_distance(startingCity, next) # Add g(n)
+    estimate = city_node.get_distance(startingCity, next) # Add g(n)
     totalDistance = round(totalDistance, 3)     # Round to 3 decimal places to find approx f(n)
-    return (totalDistance,path)
+    return (totalDistance,estimate,path)
 
 def main():
     get_nodes()
