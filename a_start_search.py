@@ -13,12 +13,41 @@ def findShortestAPath(allCityNodes, allCities):
     current = 0
     shortestPath = ""
     
-    for startCity in allCityNodes:
-        current = aSearch(startCity, allCities)
-        if(current[0] + current[1] < shortestDistance):
-            trueDistance = current[0]
-            shortestDistance = current[0] + current[1]
-            shortestPath = current[2]
+    findStart = input("\nWhat City are you starting from: (Case Sensitive, or 'Best' for best path) ")
+    findEnd = input("What City are you going to: (Case Sensitive, or 'Best' for best path) ")
+    
+    if(findStart != "Best" and findEnd != "Best"):
+        for startCity in allCityNodes:
+            current = aSearch(startCity, allCities)
+            if(current[0] + current[1] < shortestDistance):
+                trueDistance = current[0]
+                shortestDistance = current[0] + current[1]
+                shortestPath = current[2]
+    elif(findStart == "Best" and findEnd != "Best"):
+        for startCity in allCityNodes:
+            if(startCity.name == findEnd):
+                None
+            else:
+                current = aSearch(startCity, allCities)
+                if(current[0] + current[1] < shortestDistance):
+                    trueDistance = current[0]
+                    shortestDistance = current[0] + current[1]
+                    shortestPath = current[2]
+    elif(findStart != "Best" and findEnd == "Best"):
+        for startCity in allCityNodes:
+            if(startCity.name == findStart):
+                current = aSearch(startCity, allCities)
+                if(current[0] + current[1] < shortestDistance):
+                    trueDistance = current[0]
+                    shortestDistance = current[0] + current[1]
+                    shortestPath = current[2]
+    else:
+        for startCity in allCityNodes:
+            current = aSearch(startCity, allCities)
+            if(current[0] + current[1] < shortestDistance):
+                trueDistance = current[0]
+                shortestDistance = current[0] + current[1]
+                shortestPath = current[2]
     print("\nThe shortest path is " + shortestPath + " with a direct line distance of " + str(trueDistance) + " miles.\n")
 
 def aSearch(startingCity, allCities):
