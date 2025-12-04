@@ -1,0 +1,41 @@
+// NY State Cities
+graph {
+	overlap=false
+	splines=true
+	sep="+4.0"
+	nodesep=4.0
+	ranksep=4.0
+	len=2.5
+	K=5.0
+	Rochester [label=Rochester fillcolor=lightgreen fontsize=14 shape=circle style=filled width=1.2]
+	Buffalo [label=Buffalo fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Syracuse [label=Syracuse fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Albany [label=Albany fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Ithaca [label=Ithaca fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Binghamton [label=Binghamton fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Niagara Falls" [label="Niagara Falls" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"New York City" [label="New York City" fillcolor=lightcoral fontsize=14 shape=doublecircle style=filled width=1.2]
+	Yonkers [label=Yonkers fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Schenectady [label=Schenectady fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Saratoga Springs" [label="Saratoga Springs" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"White Plains" [label="White Plains" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Newburgh [label=Newburgh fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Lexington [label=Lexington fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Huntington [label=Huntington fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"New Rochelle" [label="New Rochelle" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Fire Island" [label="Fire Island" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Cold Spring" [label="Cold Spring" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Woodbury [label=Woodbury fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Skaneateles [label=Skaneateles fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Lake Placid" [label="Lake Placid" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Watkins Glen" [label="Watkins Glen" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Farmingdale [label=Farmingdale fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Riverhead [label=Riverhead fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Smithtown [label=Smithtown fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Great Neck" [label="Great Neck" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Oyster Bay" [label="Oyster Bay" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	"Sag Harbor" [label="Sag Harbor" fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Poughkeepsie [label=Poughkeepsie fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Troy [label=Troy fillcolor=lightblue fontsize=10 shape=circle style=filled width=0.8]
+	Rochester -- "New York City" [label=250.8 color=red fontcolor=red fontsize=12 penwidth=3.0]
+}
