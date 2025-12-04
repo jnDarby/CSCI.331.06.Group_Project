@@ -18,13 +18,12 @@ class AStarAlgorithm:
         return math.dist((v, w), (x, y))
 
     def search(self, start_city, goal_city):
-        # Priority queue (f, g, city, path)
-        pq = []
-        heapq.heappush(pq, (0, 0, start_city, [start_city]))
+        priorityq = []
+        heapq.heappush(priorityq, (0, 0, start_city, [start_city]))
         visited = {}
 
-        while pq:
-            priorityValue, costSoFar, city, path = heapq.heappop(pq)
+        while priorityq:
+            priorityValue, costSoFar, city, path = heapq.heappop(priorityq)
             self.expanded_nodes += 1
             if city == goal_city:
                 return (path, costSoFar)
@@ -37,6 +36,6 @@ class AStarAlgorithm:
                 newCost = costSoFar + cost
                 heuristic = self._heuristic(neighbor, goal_city)
                 newPrio = newCost + heuristic
-                heapq.heappush(pq, (newPrio, newCost, neighbor, path + [neighbor]))
+                heapq.heappush(priorityq, (newPrio, newCost, neighbor, path + [neighbor]))
 
         return None
