@@ -45,18 +45,23 @@ def findBestWhereBoth(allCityNodes, allCities, findStart, findEnd):
     return shortestDistance, shortestPath, trueDistance
     
 def findBestWhereEnd(allCityNodes, allCities, findEnd):
+    #Run as if the end is the starting city and flip resulting path
     shortestDistance = math.inf
     shortestPath = ""
     trueDistance = math.inf
     
-    endCity = city_node.get_node_from_name(findEnd)
-    for startCity in allCityNodes:
-        dist, path = ida_search_start(startCity, allCityNodes, allCities)
-        if dist < shortestDistance:
-            shortestDistance = dist
-            trueDistance = dist
-            shortestPath = path
-    return shortestDistance, shortestPath, trueDistance
+    startCity = city_node.get_node_from_name(findEnd)
+    dist, path = ida_search_start(startCity, allCityNodes, allCities)
+    if dist < shortestDistance:
+        shortestDistance = dist
+        trueDistance = dist
+        shortestPath = path
+
+    nodes = shortestPath.split(' -> ')
+    reversed_nodes = nodes[::-1]
+    shortestPath = ' -> '.join(reversed_nodes)
+
+    return shortestDistance, shortestPath, trueDistance    
     
 def findBestWhereStart(allCityNodes, allCities, findStart):
     shortestDistance = math.inf
