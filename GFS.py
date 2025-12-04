@@ -3,61 +3,115 @@ import csv
 
 filename = 'data.csv'
 
+class Node:
+    def __init__(self, name):
+        self.name = name
+        self.neighbors = {}
+    
+    def add_neighbor(self, neighbor, distance):
+        self.neighbors[neighbor] = distance
+    
+    def get_neighbors(self):
+        return self.neighbors.keys()
+
+nodes = {}
 allCities = []
-routes = {}
 
 with open(filename, newline='') as csvfile:
     reader = csv.reader(csvfile)
-    header = next(reader)  # Read the header row with city names
-    allCities = header[0:]  # Store values
+    header = next(reader)
+    allCities = header[0:]
+    
+    for city in allCities:
+        nodes[city] = Node(city)
     
     for row in reader:
-        city_from = row[0]  # first cell in the row is the city name
+        city_from = row[0]
         distances = row[1:]
         
         for city_to, distance_str in zip(allCities, distances):
             distance = float(distance_str)
-            # Use tuple keys for clarity and avoid shortening
-            routes[(city_from,city_to)] = distance
+            nodes[city_from].add_neighbor(nodes[city_to], distance)
+            nodes[city_to].add_neighbor(nodes[city_from], distance)
 
-    for startCity in allCities:
-        for endCity in allCities:
-            print(startCity + " and " + endCity + " distance is " + str(routes[(startCity,endCity)]))
-
-def greedyFirst():
+def greedyFirst(startCityName, endCityName=None):
+    """Greedy First Search from startCity to endCity (or all cities if endCity=None)"""
+    startNode = nodes[startCityName]
+    unvisited = set(nodes.values())
+    current = startNode
+    path = [current.name]
     totalDistance = 0
-    path = ""
-    cost = math.inf
-    for start in allCities:
-        for end in allCities:
-            if( start != end and routes[(start,end)] < cost):
-                cost = routes[(start,end)]
-                route = (start,end)
-                path = start + " -> " + end
-    totalDistance += cost
-    del routes[route]
-    allCities.remove(route[0])
-    lastCity = route[1]
-    while(True):
-        cost = math.inf
 
-        for end in allCities:
-            if( lastCity != end and routes[(lastCity,end)] < cost):
-                cost = routes[(lastCity,end)]
-                route = (lastCity,end)
-        for city in route:
-            if(city not in path):
-                path += " -> " + city
-                allCities.remove(city)
-        totalDistance += cost
-        del routes[route]
+    unvisited.remove(current)
+
+    while unvisited:
+        next_node = None
+        min_distance = math.inf
         
-        if(len(allCities) < 2):
-            print(path)
-            print("Total Distance: " + str(totalDistance) + " Miles")
+        for neighbor, distance in current.neighbors.items():
+            if neighbor in unvisited and distance < min_distance:
+                min_distance = distance
+                next_node = neighbor
+        
+        if next_node is None:
+            break
+            
+        path.append(next_node.name)
+        totalDistance += min_distance
+        current = next_node
+        unvisited.remove(current)
+        
+        if endCityName and current.name == endCityName:
             break
 
+    return path, totalDistance
 
+def find_best_starting_city(endCityName=None):
+    """Find the best starting city for greedy first (shortest total path)"""
+    best_path = None
+    best_distance = math.inf
+    best_start = None
+    
+    for startCity in allCities:
+        path, distance = greedyFirst(startCity, endCityName)
+        if distance < best_distance:
+            best_distance = distance
+            best_path = path
+            best_start = startCity
+    
+    return best_start, best_path, best_distance
 
-greedyFirst()
-print("End")
+def main():
+    print("Available cities:", ", ".join(allCities))
+    print("\nEnter starting city (or 'Best' for best starting city):")
+    start_input = input().strip()
+    
+    print("Enter ending city (or leave blank/Enter for full tour):")
+    end_input = input().strip()
+    
+    if start_input.lower() == 'best':
+        startCity = None
+    else:
+        startCity = start_input
+        if startCity not in nodes:
+            print(f"Invalid starting city: {startCity}")
+            return
+    
+    endCity = end_input if end_input else None
+    if endCity and endCity not in nodes:
+        print(f"Invalid ending city: {endCity}")
+        return
+    
+    if startCity is None:
+        best_start, path, totalDistance = find_best_starting_city(endCity)
+        print(f"\nBest starting from: {best_start}")
+        print(" -> ".join(path))
+        print(f"Total Distance: {totalDistance:.2f} Miles")
+    else:
+        path, totalDistance = greedyFirst(startCity, endCity)
+        print(f"\nPath from {startCity}:")
+        print(" -> ".join(path))
+        print(f"Total Distance: {totalDistance:.2f} Miles")
+
+if __name__ == "__main__":
+    main()
