@@ -76,7 +76,7 @@ except ImportError:
 class NYRouteGraph:
     """Graph representation of NY cities with distance data - FULLY CONNECTED"""
 
-    def __init__(self, csv_filename='data.csv'):
+    def __init__(self, csv_filename='actualDistance.csv'):
         self.filename = csv_filename
         self.cities = []
         self.graph = {}
@@ -268,7 +268,7 @@ def run_algorithm(actualGraph, straightlineGraph, algorithm_name, start, goal):
     elif algorithm_name == "UCS" and UCS_AVAILABLE:
         algo = UCSAlgorithm(actualGraph.graph)
     elif algorithm_name == "GFS" and GFS_AVAILABLE:
-        algo = GFSAlgorithm(actualGraph.graph)
+        algo = GFSAlgorithm(actualGraph.graph, straightlineGraph.graph)
     elif algorithm_name == "IDA_STAR" and IDA_AVAILABLE:
         algo = IDAAlgorithm(actualGraph.graph, straightlineGraph.graph)
     elif algorithm_name == "A_STAR" and ASTAR_AVAILABLE:
