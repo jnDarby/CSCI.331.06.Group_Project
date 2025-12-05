@@ -2,20 +2,11 @@ import heapq
 import math
 
 class AStarAlgorithm:
-    def __init__(self, graph):
-        self.graph = graph
+    def __init__(self, actualGraph, estimateGraph):
+        self.graph = actualGraph
+        self.heuristicValues = estimateGraph
         self.expanded_nodes = 0  
         self.coordinates = {}   
-
-    def _heuristic(self, a, b):
-        if a not in self.coordinates:
-            return 0
-        elif b not in self.coordinates:
-            return 0
-        
-        (v, w) = self.coordinates[a]
-        (x, y) = self.coordinates[b]
-        return math.dist((v, w), (x, y))
 
     def search(self, start_city, goal_city):
         priorityq = []
@@ -33,9 +24,11 @@ class AStarAlgorithm:
             visited[city] = costSoFar
             #Expands neighbors
             for neighbor, cost in self.graph[city].items():
-                newCost = costSoFar + cost
-                heuristic = self._heuristic(neighbor, goal_city)
-                newPrio = newCost + heuristic
-                heapq.heappush(priorityq, (newPrio, newCost, neighbor, path + [neighbor]))
+                if( neighbor not in path):
+                    newCost = costSoFar + cost
+                    heuristic = self.heuristicValues[neighbor][start_city]
+                    newPrio = newCost + heuristic
+                    heapq.heappush(priorityq, (newPrio, newCost, neighbor, path + [neighbor]))
 
+        print(priorityq)
         return None

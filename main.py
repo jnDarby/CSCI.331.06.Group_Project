@@ -254,25 +254,25 @@ class NYRouteGraph:
             print("  Make sure Graphviz is installed on your system")
 
 
-def run_algorithm(graph, algorithm_name, start, goal):
+def run_algorithm(actualGraph, straightlineGraph, algorithm_name, start, goal):
     """Run selected algorithm using imported classes"""
     
     algo = None
     
     if algorithm_name == "IDS" and IDS_AVAILABLE:
-        algo = IDSAlgorithm(graph.graph)
+        algo = IDSAlgorithm(actualGraph.graph)
     elif algorithm_name == "BFS" and BFS_AVAILABLE:
-        algo = BFSAlgorithm(graph.graph)
+        algo = BFSAlgorithm(actualGraph.graph)
     elif algorithm_name == "DFS" and DFS_AVAILABLE:
-        algo = DFSAlgorithm(graph.graph)
+        algo = DFSAlgorithm(actualGraph.graph)
     elif algorithm_name == "UCS" and UCS_AVAILABLE:
-        algo = UCSAlgorithm(graph.graph)
+        algo = UCSAlgorithm(actualGraph.graph)
     elif algorithm_name == "GFS" and GFS_AVAILABLE:
-        algo = GFSAlgorithm(graph.graph)
+        algo = GFSAlgorithm(actualGraph.graph)
     elif algorithm_name == "IDA_STAR" and IDA_AVAILABLE:
-        algo = IDAAlgorithm(graph.graph)
+        algo = IDAAlgorithm(actualGraph.graph, straightlineGraph.graph)
     elif algorithm_name == "A_STAR" and ASTAR_AVAILABLE:
-        algo = AStarAlgorithm(graph.graph)
+        algo = AStarAlgorithm(actualGraph.graph, straightlineGraph.graph)
     else:
         print(f"Algorithm {algorithm_name} not available")
         return None
@@ -316,19 +316,26 @@ def main():
     print("="*80 + "\n")
     
     # Load graph
-    graph = NYRouteGraph('data.csv')
+    actualGraph = NYRouteGraph('actualDistance.csv')
+    straightLineGraph = NYRouteGraph('straightLineDistance.csv')
     
-    if not graph.graph:
+    if not actualGraph.graph:
+        print("Failed to load graph. Exiting.")
+        sys.exit(1)
+
+    if not straightLineGraph.graph:
         print("Failed to load graph. Exiting.")
         sys.exit(1)
     
     # Analyze graph properties
-    graph.analyze_graph_properties()
+    actualGraph.analyze_graph_properties()
+    straightLineGraph.analyze_graph_properties()
     
     # Create full network visualization
     if GRAPHVIZ_AVAILABLE:
         print("Creating full network visualization...")
-        graph.visualize_graphviz(filename='full_network', format='png')
+        actualGraph.visualize_graphviz(filename='full_network', format='png')
+        straightLineGraph.visualize_graphviz(filename='full_network', format='png')
         print()
     
     # Show available algorithms
@@ -375,28 +382,28 @@ def main():
     start = 'Rochester'
     
     # Check if Rochester exists in the graph
-    if start not in graph.cities:
+    if start not in actualGraph.cities:
         print(f"\nERROR: '{start}' not found in the graph!")
-        print(f"Available cities: {', '.join(sorted(graph.cities))}")
+        print(f"Available cities: {', '.join(sorted(actualGraph.cities))}")
         print("\nPlease check your data.csv file. Make sure 'Rochester' is spelled correctly.")
         sys.exit(1)
     
     # Get destination city
     print(f"\nStarting city: {start}")
-    print(f"Available destinations: {', '.join(sorted(graph.cities[:10]))}... (and {len(graph.cities)-10} more)")
+    print(f"Available destinations: {', '.join(sorted(actualGraph.cities[:10]))}... (and {len(actualGraph.cities)-10} more)")
     
     while True:
         goal = input("\nEnter destination city (default: New York City): ").strip()
         if not goal:
             goal = 'New York City'
-        if goal in graph.cities:
+        if goal in actualGraph.cities:
             break
         print(f"'{goal}' not found. Please try again.")
     
     print(f"\nRunning {algorithm}: {start} → {goal}\n")
     
     # Run search
-    result = run_algorithm(graph, algorithm, start, goal)
+    result = run_algorithm(actualGraph, straightLineGraph, algorithm, start, goal)
     
     # Print results
     print_results(result)
@@ -404,7 +411,7 @@ def main():
     # Visualize the path
     if GRAPHVIZ_AVAILABLE and result and result['path']:
         print("Creating path visualization...")
-        graph.visualize_graphviz(
+        actualGraph.visualize_graphviz(
             result['path'], 
             filename=f'{algorithm.lower()}_route_{start.replace(" ", "_")}_to_{goal.replace(" ", "_")}',
             format='png',
@@ -412,7 +419,7 @@ def main():
         )
         
         print("\nCreating path visualization with all edges...")
-        graph.visualize_graphviz(
+        actualGraph.visualize_graphviz(
             result['path'], 
             filename=f'{algorithm.lower()}_route_{start.replace(" ", "_")}_to_{goal.replace(" ", "_")}_full',
             format='png',
@@ -431,11 +438,11 @@ def main():
         print("-"*80)
         
         results = []
-        for city in sorted(graph.cities):
+        for city in sorted(actualGraph.cities):
             if city == start:
                 continue
             
-            result = run_algorithm(graph, algorithm, start, city)
+            result = run_algorithm(actualGraph, straightLineGraph, algorithm, start, city)
             if result and result['path']:
                 print(f"{city:<20} {result['cost']:<12.2f} {result['stops']:<8} "
                       f"{result['expanded']:<10} {result['runtime']:<.4f}")
