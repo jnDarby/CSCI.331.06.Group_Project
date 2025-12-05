@@ -457,10 +457,12 @@ def main():
             avg_dist = sum(r['cost'] for r in results) / len(results)
             avg_stops = sum(r['stops'] for r in results) / len(results)
             avg_expanded = sum(r['expanded'] for r in results) / len(results)
+            avg_time = sum( r['runtime'] for r in results) / len(results)
             
             print(f"\nAverage Distance: {avg_dist:.2f} miles")
             print(f"Average Stops: {avg_stops:.2f}")
             print(f"Average Nodes Expanded: {avg_expanded:.2f}")
+            print(f"Average Computaion Time: {avg_time:.4f}")
     
     print("\n✓ Complete!")
     
