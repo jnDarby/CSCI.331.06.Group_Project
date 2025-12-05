@@ -26,7 +26,9 @@ class IDAAlgorithm:
     
     def _heuristic(self, current_city, goal_city):
         """Heuristic function - estimate from current to goal"""
-        return self.heuristicValues.get(current_city, {}).get(goal_city, 0)
+        if goal_city == current_city:
+            return 0
+        return self.heuristicValues[goal_city][current_city]
     
     def _ida_search(self, path, g, bound, goalCity):
         current_city = path[-1]

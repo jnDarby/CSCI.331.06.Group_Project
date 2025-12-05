@@ -33,9 +33,10 @@ class AStarAlgorithm:
             
             for neighbor, cost in self.graph[current].items():
                 newCost = costSoFar[current] + cost
-                if newCost < costSoFar.get(neighbor, float('inf')):
+                t = costSoFar.get(neighbor, float('inf'))
+                if (newCost < t):
                     costSoFar[neighbor] = newCost
-                    heuristic = self.heuristicValues.get(neighbor, {}).get(goal_city, 0)
+                    heuristic = self.heuristicValues[neighbor][current]
                     priority = newCost + heuristic
                     heapq.heappush(priorityq, (priority, newCost, neighbor))
                     cameFrom[neighbor] = current
