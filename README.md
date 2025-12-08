@@ -31,7 +31,7 @@ making any reasonable assumptions whenever needed or when exact data is not obvi
 - and IDA*
 
 ### Graph Representation
-At the moment, we are unsure of how we will represent or create the graph but we have started research/have brainstormed a few libraries. We have also asked the Professor for advice in terms of possible resources/libraries.
+At the moment, we are unsure of how we will represent or create the graph but we have started research/have brainstormed a few libraries. We have also asked the Professor for advice in terms of possible resources/libraries. In the end, we decided to use Graphviz for implementing and generating our graphs, which are created automatically when running the program for each of the searches. Below, however, are some brainstorming ideas that were generated...
   - SNAPPY: https://snap.stanford.edu/snappy/
   - Turtle
   - graph-tool: https://graph-tool.skewed.de/static/docs/stable/index.html
